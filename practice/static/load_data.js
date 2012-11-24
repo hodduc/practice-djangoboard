@@ -60,6 +60,11 @@ function load_article(){
 			$('#content').html(data['article']['content']);
 			$('#meta').html(data['article']['author'] + ', ' + data['article']['date']);
 
+			$('#article-body .reply_to').remove();
+			if(data['article']['parent_id']){
+				$('#article-body').prepend('<div class="reply_to" style="margin-bottom:1em;"><span class="label label-info">Reply to</span> ' + $('#art_' + data['article']['parent_id'] + ' a').html() + '</div>');
+			}
+
 			highlight_current_article();
 			$('#article-actions').show();
 			$('#delete_form').hide();
