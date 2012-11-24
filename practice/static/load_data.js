@@ -22,7 +22,8 @@ function reload_article_list(){
 	}).done(function (data) {
 		var items = [];
 		$.each(data, function(no, article){
-			items.push('<li id="art_' + article['id'] + '"> <a href="#">' + article['title'] + '</a></li>');
+			var depth = parseInt(article['depth'])*10;
+			items.push('<li id="art_' + article['id'] + '"> <a href="#" style="margin-left:' + depth + 'px;">' + article['title'] + '</a></li>');
 		});
 
 		$('#article-list li:not(:first)').remove();

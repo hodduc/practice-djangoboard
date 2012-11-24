@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.timezone import get_current_timezone
+from collections import deque
 import json
 
 def index(request):
@@ -13,8 +14,24 @@ def filter_dict(orm_object, filter_list):
 
 @csrf_exempt
 def list(request):
-    articles = Article.objects.order_by('-id').all()
-    r = [filter_dict(article, ('id', 'author', 'parent_id', 'title')) for article in articles]
+    articles = Article.objects.order_by('id').all()
+    n = len(articles)
+    ordered_articles = []
+
+    def bt(curr):
+        depth = articles[curr].__dict__['depth']
+        ordered_articles.append(articles[curr])
+        for i in xrange(n):
+            if articles[i].parent_id == articles[curr].id:
+                articles[i].__dict__['depth'] = depth + 1
+                bt(i)
+
+    for i in xrange(n):
+        if articles[i].parent_id is None:
+            articles[i].__dict__['depth'] = 0
+            bt(i)
+
+    r = [filter_dict(article, ('id', 'author', 'parent_id', 'title', 'depth')) for article in ordered_articles]
     return HttpResponse(json.dumps(r), mimetype='application/json')
 
 @csrf_exempt
